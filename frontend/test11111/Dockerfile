@@ -9,7 +9,7 @@ RUN apt-get update && \
     apt-get install -y git
 
 # Git 리포지토리에서 소스 코드 클론
-RUN git clone https://github.com/awscloud-group4/qna-backend.git
+RUN git clone https://github.com/LightYe4r/k8s.T.7/frontend/test11111.git
 
 # 필요한 Python 패키지 설치
 RUN pip install --no-cache-dir -r qna-backend/requirements.txt
