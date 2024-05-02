@@ -9,7 +9,7 @@ RUN apt-get update && \
     apt-get install -y git
 
 # Git 리포지토리에서 소스 코드 클론
-RUN git clone https://github.com/LightYe4r/k8s.T.7/frontend/test11111.git
+RUN git clone https://github.com/LightYe4r/k8s-T.7/tree/47e24bd1bf85b658dda4cb66097c31920edf86a2/frontend/test11111
 
 # 필요한 Python 패키지 설치
 RUN pip install --no-cache-dir -r qna-backend/requirements.txt
