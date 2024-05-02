@@ -6,7 +6,8 @@ from django.utils import timezone
 from django.utils.dateparse import parse_date
 import uuid
 import os
-
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 # MongoDB 클라이언트 설정을 위한 함수
 def get_mongo_collection(db_name='team4qna', collection_name='qna'):
@@ -47,6 +48,15 @@ class QuestionCreateAPIView(APIView):
         # 함수 호출로 MongoDB 클라이언트 설정
         questions_collection = get_mongo_collection()
 
+        # 이미지 업로드
+        images = request.FILES.getlist("images")
+        image_urls = []
+        for image in images:
+            # 이미지를 저장하고 URL을 생성
+            image_name = default_storage.save(image.name, ContentFile(image.read()))
+            image_url = default_storage.url(image_name)
+            image_urls.append(image_url)
+
         # 새 질문 데이터 생성
         new_question = {
             "question_id": str(uuid.uuid4()),  # 고유한 질문 ID
@@ -54,6 +64,7 @@ class QuestionCreateAPIView(APIView):
             "author_nickname": author_nickname,  # 사용자가 제공한 닉네임
             "created_at": timezone.now(),  # 현재의 날짜와 시간
             "upvotes": 0,  # upvotes 초기값 설정
+            "images": image_urls,  # 이미지 URL 리스트
             "answers": []  # 빈 답변 리스트
         }
 
@@ -71,6 +82,7 @@ class QuestionCreateAPIView(APIView):
             # 기타 오류 발생 시
             return Response({"error": "질문을 추가하지 못했습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+
 
 ##답변 추가
 class AnswerCreateAPIView(APIView):
