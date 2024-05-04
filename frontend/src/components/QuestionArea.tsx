@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect } from "react";
 import {
   Button,
@@ -21,7 +20,6 @@ const QuestionArea = () => {
   >([]);
   const { today } = useDateInfo();
   const { nickname, isNickname } = useNickname();
-  const [mainImages, setMainImages] = useState<string[]>([]);
 
   useEffect(() => {
     return () => {
@@ -29,17 +27,19 @@ const QuestionArea = () => {
     };
   }, [imagePreviews]);
 
-  useEffect(() => {
-    setMainImages(imagePreviews.map(({ url }) => url));
-  }, [imagePreviews]);
-
   async function postQuestion() {
+    const base64Images = await Promise.all(images.map(async (image) => {
+      const base64String = await convertImageToBase64(image);
+      return base64String;
+    }));
+
     const userQuestion = {
       title: question,
       author_nickname: nickname,
       date: today,
-      images: images,
+      images: base64Images,
     };
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/qna/addQuestion/`,
@@ -55,7 +55,6 @@ const QuestionArea = () => {
         console.log("질문 등록 완료");
         setQuestion("");
         setImages([]);
-        setImagePreviews([]);
         onClose();
       }
     } catch (error) {
@@ -79,31 +78,19 @@ const QuestionArea = () => {
     }
   };
 
-  const handleRemoveImage = (index: number) => {
-    const updatedImages = [...images];
-    updatedImages.splice(index, 1);
-    setImages(updatedImages);
-
-    const updatedPreviews = [...imagePreviews];
-    updatedPreviews.splice(index, 1);
-    setImagePreviews(
-      updatedPreviews.map((preview, i) => ({
-        ...preview,
-        url: URL.createObjectURL(updatedImages[i]),
-      }))
-    );
-  };
-
-  const handleCloseModal = () => {
-    setQuestion("");
-    setImages([]);
-    setImagePreviews([]);
-    onClose();
-  };
-
-  const handleSubmit = () => {
-    postQuestion();
-    onClose();
+  const convertImageToBase64 = (image: File) => {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.result) {
+          resolve(reader.result.toString());
+        } else {
+          reject(new Error("Failed to convert image to Base64."));
+        }
+      };
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(image);
+    });
   };
 
   return (
@@ -112,11 +99,11 @@ const QuestionArea = () => {
         color="primary"
         variant="ghost"
         disabled={isNickname}
-        onPress={onOpen}
+        onClick={onOpen}
       >
         질문하기
       </Button>
-      <Modal isOpen={isOpen} onClose={() => {}} placement="top-center">
+      <Modal isOpen={isOpen} onClose={onClose} placement="top-center">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">질문</ModalHeader>
           <ModalBody>
@@ -159,35 +146,15 @@ const QuestionArea = () => {
                       objectFit: "cover",
                     }}
                   />
-                  <button
-                    onClick={() => handleRemoveImage(index)}
-                    style={{
-                      position: "absolute",
-                      top: "5px",
-                      right: "5px",
-                      background: "rgba(0, 0, 0, 0.5)",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "50%",
-                      width: "20px",
-                      height: "20px",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      cursor: "pointer",
-                    }}
-                  >
-                    X
-                  </button>
                 </div>
               ))}
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button color="danger" variant="flat" onClick={handleCloseModal}>
+            <Button color="danger" variant="flat" onClick={onClose}>
               닫기
             </Button>
-            <Button color="primary" onClick={handleSubmit}>
+            <Button color="primary" onClick={postQuestion}>
               등록
             </Button>
           </ModalFooter>

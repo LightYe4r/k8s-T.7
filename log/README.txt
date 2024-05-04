@@ -6,5 +6,6 @@
 6. kubectl create -f fluent-bit-configmap.yaml -n logging
 7. kubectl create -f fluent-bit-ds.yaml -n logging
 8. helm install kibana elastic/kibana -f kibana-value.yml -n logging
-9. kubectl port-forward elasticsearch-master-0 -n logging 9200:9200 elastic:akstjd0219
-10.192.168.56.100:30305
+9. kubectl port-forward elasticsearch-master-0 -n logging 9200:9200
+10.curl -k https://localhost:9200 -u elastic:akstjd0219
+11.192.168.56.100:30305

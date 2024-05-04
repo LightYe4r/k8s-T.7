@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
       - name: backend
-        image: kimyoungwoo613/back:2.0
+        image: manji955/testback:6.0
+        # image: kimyoungwoo613/back:2.0
         ports:
         - containerPort: 8000
         env:
@@ -25,8 +26,10 @@ spec:
         - name: MONGO_PORT
           value: "27017"
         volumeMounts:
-        - mountPath: /etc/localtime
-          name: backend-claim0
+        - name: backend-claim0
+          # mountPath: /etc/localtime
+          mountPath: /usr/src/app
+          
       volumes:
       - name: backend-claim0
         persistentVolumeClaim:
