@@ -42,7 +42,7 @@ spec:
         app: frontend
     spec:
       containers:
-        - image: kimyoungwoo613/front:2.0
+        - image: jungjunsung/webtest:4.0
           name: front
           volumeMounts:
             - mountPath: /etc/localtime
