@@ -1,5 +1,5 @@
 "use client";
-import { useDateInfo, useNickname } from "@/app/providers";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Textarea,
@@ -10,26 +10,35 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@nextui-org/react";
-import React, { useState } from "react";
+import { useDateInfo, useNickname } from "@/app/providers";
 
 const QuestionArea = () => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [question, setQuestion] = useState("");
+  const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<
+    { file: File; url: string }[]
+  >([]);
   const { today } = useDateInfo();
   const { nickname, isNickname } = useNickname();
+  const [mainImages, setMainImages] = useState<string[]>([]);
 
-  // 파일 선택 시 실행되는 함수
-  function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
-    const fileList = event.target.files;
-    // 선택한 파일에 대한 처리를 진행
-    console.log("Selected files:", fileList);
-  }
+  useEffect(() => {
+    return () => {
+      imagePreviews.forEach(({ url }) => URL.revokeObjectURL(url));
+    };
+  }, [imagePreviews]);
+
+  useEffect(() => {
+    setMainImages(imagePreviews.map(({ url }) => url));
+  }, [imagePreviews]);
 
   async function postQuestion() {
     const userQuestion = {
       title: question,
       author_nickname: nickname,
       date: today,
+      images: images,
     };
     try {
       const res = await fetch(
@@ -44,54 +53,144 @@ const QuestionArea = () => {
       );
       if (res.ok) {
         console.log("질문 등록 완료");
+        setQuestion("");
+        setImages([]);
+        setImagePreviews([]);
+        onClose();
       }
     } catch (error) {
       console.log(error);
     }
   }
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newImages: File[] = Array.from(files);
+      setImages((prevImages) => [...prevImages, ...newImages]);
+      const newImagePreviews = newImages.map((file) => ({
+        file,
+        url: URL.createObjectURL(file),
+      }));
+      setImagePreviews((prevPreviews) => [
+        ...prevPreviews,
+        ...newImagePreviews,
+      ]);
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const updatedImages = [...images];
+    updatedImages.splice(index, 1);
+    setImages(updatedImages);
+
+    const updatedPreviews = [...imagePreviews];
+    updatedPreviews.splice(index, 1);
+    setImagePreviews(
+      updatedPreviews.map((preview, i) => ({
+        ...preview,
+        url: URL.createObjectURL(updatedImages[i]),
+      }))
+    );
+  };
+
+  const handleCloseModal = () => {
+    setQuestion("");
+    setImages([]);
+    setImagePreviews([]);
+    onClose();
+  };
+
+  const handleSubmit = () => {
+    postQuestion();
+    onClose();
+  };
+
   return (
     <>
       <Button
         color="primary"
         variant="ghost"
-        isDisabled={isNickname}
+        disabled={isNickname}
         onPress={onOpen}
       >
         질문하기
       </Button>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
+      <Modal isOpen={isOpen} onClose={() => {}} placement="top-center">
         <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">질문</ModalHeader>
-              <ModalBody>
-                <Textarea
-                  autoFocus
-                  label="Question"
-                  placeholder="질문을 입력하세요"
-                  variant="bordered"
-                  onChange={(e) => {
-                    setQuestion((prev) => e.target.value);
+          <ModalHeader className="flex flex-col gap-1">질문</ModalHeader>
+          <ModalBody>
+            <Textarea
+              autoFocus
+              label="Question"
+              placeholder="질문을 입력하세요"
+              variant="bordered"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+            />
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageUpload}
+            />
+            <div
+              className="image-previews"
+              style={{ display: "flex", flexWrap: "wrap" }}
+            >
+              {imagePreviews.map(({ url }, index) => (
+                <div
+                  className="image-preview"
+                  key={index}
+                  style={{
+                    position: "relative",
+                    width: "100px",
+                    height: "100px",
+                    margin: "5px",
+                    overflow: "hidden",
                   }}
-                />
-                {/* 파일 선택 버튼 */}
-                <input type="file" onChange={handleFileSelect} />
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="flat" onPress={onClose}>
-                  닫기
-                </Button>
-                <Button
-                  color="primary"
-                  onClick={() => postQuestion()}
-                  onPress={onClose}
                 >
-                  등록
-                </Button>
-              </ModalFooter>
-            </>
-          )}
+                  <img
+                    src={url}
+                    alt={`Preview ${index}`}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <button
+                    onClick={() => handleRemoveImage(index)}
+                    style={{
+                      position: "absolute",
+                      top: "5px",
+                      right: "5px",
+                      background: "rgba(0, 0, 0, 0.5)",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: "20px",
+                      height: "20px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      cursor: "pointer",
+                    }}
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" variant="flat" onClick={handleCloseModal}>
+              닫기
+            </Button>
+            <Button color="primary" onClick={handleSubmit}>
+              등록
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </>
