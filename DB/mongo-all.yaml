@@ -17,6 +17,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  namespace: mongodb  # 네임스페이스 추가
   name: mongo-pvc
   labels:
     app: mongodb
@@ -32,6 +33,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: mongodb  # 네임스페이스 추가
   name: mongodb
   labels:
     app: mongodb
@@ -60,10 +62,13 @@ spec:
         - name: mongodbdata
           persistentVolumeClaim:
             claimName: mongo-pvc
+
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: mongodb  # 네임스페이스 추가
   name: mongodb
   labels:
     app: mongodb
@@ -74,4 +79,3 @@ spec:
       targetPort: 27017
   selector:
     app: mongodb
-

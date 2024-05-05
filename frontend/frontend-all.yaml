@@ -15,6 +15,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  namespace: frontend  # 네임스페이스 추가
   labels:
     app: frontend
   name: front-claim0
@@ -28,6 +29,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: frontend  # 네임스페이스 추가
   labels:
     app: frontend
   name: frontend
@@ -42,8 +44,7 @@ spec:
         app: frontend
     spec:
       containers:
-        - image: jungjunsung/webtest:21.0
-          # image: kimyoungwoo613/front:2.0
+        - image: jungjunsung/webtest:23.0
           name: front
           volumeMounts:
             - mountPath: /etc/localtime
@@ -56,6 +57,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: frontend  # 네임스페이스 추가
   name: frontend-svc
 spec:
   selector:
@@ -64,4 +66,3 @@ spec:
   - port: 3000
     targetPort: 3000
   type: ClusterIP
-

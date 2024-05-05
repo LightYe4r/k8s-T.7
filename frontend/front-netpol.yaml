@@ -1,0 +1,35 @@
+#frontend netpol
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-network-policy
+  namespace: frontend
+spec:
+  podSelector: #정책사용 pod
+    matchLabels:
+      app: frontend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:     #ns to ns 간에 있는 Pod 트래픽 흐름 제어
+        matchLabels:
+          kubernetes.io/metadata.name: default
+    - podSelector:         # 수신을 허용하는 Pod의 label 설정
+        matchLabels:
+          app: nginx
+    ports:
+    - protocol: TCP
+      port: 3000
+  egress:
+  - to:
+    - namespaceSelector:     #ns to ns 간에 있는 Pod 트래픽 흐름 제어
+        matchLabels:
+          kubernetes.io/metadata.name: default
+    - podSelector:         # 수신을 허용하는 Pod의 label 설정
+        matchLabels:
+          app: nginx
+    ports:
+    - protocol: TCP
+      port: 3000

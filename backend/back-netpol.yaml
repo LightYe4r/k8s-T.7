@@ -1,0 +1,53 @@
+#backend netpol
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-network-policy
+  namespace: backend
+spec:
+  podSelector: #정책사용 pod
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:     #ns to ns 간에 있는 Pod 트래픽 흐름 제어
+        matchLabels:
+          kubernetes.io/metadata.name: default
+    - podSelector:         # 수신을 허용하는 Pod의 label 설정
+        matchLabels:
+          app: nginx
+    ports:
+    - protocol: TCP
+      port: 8000
+  - from:
+    - namespaceSelector:     #ns to ns 간에 있는 Pod 트래픽 흐름 제어
+        matchLabels:
+          kubernetes.io/metadata.name: mongodb
+    - podSelector:         # 수신을 허용하는 Pod의 label 설정
+        matchLabels:
+          app: mongodb
+    ports:
+    - protocol: TCP
+      port: 27017
+  egress:
+  - to:
+    - namespaceSelector:     #ns to ns 간에 있는 Pod 트래픽 흐름 제어
+        matchLabels:
+          kubernetes.io/metadata.name: default
+    ports:
+    - protocol: TCP
+      port: 8000
+  - to:
+    - namespaceSelector:     #ns to ns 간에 있는 Pod 트래픽 흐름 제어
+        matchLabels:
+          kubernetes.io/metadata.name: mongodb
+    ports:
+    - protocol: TCP
+      port: 27017
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
