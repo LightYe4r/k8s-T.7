@@ -42,7 +42,8 @@ spec:
         app: frontend
     spec:
       containers:
-        - image: jungjunsung/webtest:5.0
+        - image: manji955/testfront:1.0
+          # image: jungjunsung/webtest:5.0
           # image: kimyoungwoo613/front:2.0
           name: front
           volumeMounts:

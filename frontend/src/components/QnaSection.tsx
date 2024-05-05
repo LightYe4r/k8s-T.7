@@ -1,6 +1,5 @@
-"use client";
-import { Accordion, AccordionItem, Chip } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
+import { Accordion, AccordionItem, Chip } from "@nextui-org/react";
 import CommenSection from "./CommenSection";
 import VoteupButton from "./VoteupButton";
 import CommentArea from "./CommentArea";
@@ -13,6 +12,7 @@ interface IQuestion {
   author_nickname: string;
   created_at: string;
   upvotes: number;
+  images: string; // 이미지 데이터를 받을 속성 추가
   answers: {
     answer_id: string;
     author_nickname: string;
@@ -21,6 +21,7 @@ interface IQuestion {
     upvotes: number;
   }[];
 }
+
 const QnaSection = () => {
   const [qnaList, setQnaList] = useState<IQuestion[]>([]);
   const { nickname, isNickname } = useNickname();
@@ -42,6 +43,7 @@ const QnaSection = () => {
   useEffect(() => {
     getQnaData();
   }, [searchDate]);
+
   return (
     <>
       <Accordion selectionMode="multiple">
@@ -76,6 +78,12 @@ const QnaSection = () => {
                 question_id={question.question_id}
                 today={today}
               />
+              {/* 이미지를 표시하는 부분 */}
+              {question.images && (
+                <div>
+                  <img src={`data:image/jpeg;base64,${question.images}`} alt="질문 이미지" />
+                </div>
+              )}
               <CommentArea
                 disabled={isNickname}
                 question_id={question.question_id}
