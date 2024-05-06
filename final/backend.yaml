@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: backend
+data:
+  PORT: "8000"
+  MONGO_IP: "mongodb-svc.mongodb.svc.cluster.local"
+  MONGO_PORT: "27017"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: backend
+  labels:
+    app: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: manji955/testback:8.0
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: backend-config
+        volumeMounts:
+        - mountPath: /usr/src/app
+          name: backend-claim0
+      volumes:
+      - name: backend-claim0
+        persistentVolumeClaim:
+          claimName: backend-claim0
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: backend-pv
+  namespace: backend
+  labels:
+    app: backend
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/backend-storage/b1"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backend-claim0
+  namespace: backend
+  labels:
+    app: backend
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+  namespace: backend
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 8000
+    targetPort: 8000
+  type: ClusterIP
