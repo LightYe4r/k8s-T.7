@@ -1,0 +1,49 @@
+#mongodb-netpol.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mongodb-network-policy
+  namespace: mongodb
+spec:
+  podSelector: #정책사용 pod
+    matchLabels:
+      app: mongodb
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:     #backend와 연결
+        matchLabels:
+          kubernetes.io/metadata.name: backend
+    - podSelector:         # 수신을 허용하는 Pod의 label 설정
+        matchLabels:
+          app: backend
+    ports:
+    - protocol: TCP
+      port: 27017
+  - from:
+    - ipBlock:
+        cidr: 10.108.82.192/32  # tunl0 다시 설정해야할수도
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+  - from:
+    - namespaceSelector:     #backend와 연결
+        matchLabels:
+          kubernetes.io/metadata.name: backend
+    - podSelector:         # 수신을 허용하는 Pod의 label 설정
+        matchLabels:
+          app: backend
+  
+  egress:
+  - to:
+    - namespaceSelector:     #ns to ns 간에 있는 Pod 트래픽 흐름 제어
+        matchLabels:
+          kubernetes.io/metadata.name: backend
+    - podSelector:         # 수신을 허용하는 Pod의 label 설정
+        matchLabels:
+          app: bacend
+    ports:
+    - protocol: TCP
+      port: 27017
