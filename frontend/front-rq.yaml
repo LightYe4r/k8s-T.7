@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: frontend-quota
+  namespace: frontend
+spec:
+  hard:
+    pods: "5"
+    requests.cpu: "400m"
+    requests.memory: 600Mi

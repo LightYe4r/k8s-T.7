@@ -55,6 +55,13 @@ spec:
               name: timezone
             - mountPath: /data/db
               name: mongodbdata
+          resources:
+            requests:
+              cpu: 500m
+              memory: 500Mi
+            limits:
+              cpu: 1
+              memory: 1Gi
       volumes:
         - name: timezone
           hostPath:
@@ -62,6 +69,7 @@ spec:
         - name: mongodbdata
           persistentVolumeClaim:
             claimName: mongo-pvc
+
 
 ---
 

@@ -28,6 +28,13 @@ spec:
         volumeMounts:
         - mountPath: /usr/src/app    #/etc/localtime
           name: backend-claim0
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
       volumes:
       - name: backend-claim0
         persistentVolumeClaim:

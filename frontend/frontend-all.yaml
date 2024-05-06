@@ -49,10 +49,19 @@ spec:
           volumeMounts:
             - mountPath: /etc/localtime
               name: front-claim0
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+
       volumes:
         - name: front-claim0
           persistentVolumeClaim:
             claimName: front-claim0
+      
 ---
 apiVersion: v1
 kind: Service
