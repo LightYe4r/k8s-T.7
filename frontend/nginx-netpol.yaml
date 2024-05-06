@@ -23,6 +23,7 @@ spec:
       port: 80
     - protocol: TCP
       port: 443
+
   - from:
     - namespaceSelector:
         matchLabels:
@@ -30,23 +31,10 @@ spec:
     - podSelector:         # 수신을 허용하는 Pod의 label 설정
         matchLabels:
           app: frontend
-    ports:
-    - protocol: TCP
-      port: 80
-    - protocol: TCP
-      port: 443
   - from:
     - namespaceSelector:
         matchLabels:
           kubernetes.io/metadata.name: default
-    - podSelector:         # 수신을 허용하는 Pod의 label 설정
-        matchLabels:
-          app: nginx
-    ports:
-    - protocol: TCP
-      port: 80
-    - protocol: TCP
-      port: 443
   - from:
     - namespaceSelector:
         matchLabels:
@@ -54,12 +42,6 @@ spec:
     - podSelector:         # 수신을 허용하는 Pod의 label 설정
         matchLabels:
           app: backend
-    ports:
-    - protocol: TCP
-      port: 80
-    - protocol: TCP
-      port: 443
-
   egress:
   - to:
     - namespaceSelector:
@@ -68,9 +50,6 @@ spec:
     - podSelector:         # 수신을 허용하는 Pod의 label 설정
         matchLabels:
           app: frontend
-    ports:
-    - protocol: TCP
-      port: 3000
   - to:
     - namespaceSelector:
         matchLabels:
@@ -78,6 +57,13 @@ spec:
     - podSelector:         # 수신을 허용하는 Pod의 label 설정
         matchLabels:
           app: backend
-    ports:
-    - protocol: TCP
-      port: 8000
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+  - to:
+    - ipBlock:
+        cidr: 10.106.159.128/32  # tunl0
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system

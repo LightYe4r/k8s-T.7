@@ -34,7 +34,7 @@ metadata:
     app: frontend
   name: frontend
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: frontend
@@ -54,8 +54,8 @@ spec:
               cpu: 100m
               memory: 100Mi
             limits:
-              cpu: 500m
-              memory: 1Gi
+              cpu: 300m
+              memory: 300Mi
 
       volumes:
         - name: front-claim0
