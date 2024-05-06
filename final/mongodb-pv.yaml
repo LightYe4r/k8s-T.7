@@ -1,0 +1,43 @@
+# 3개의 pod가 사용할 PV를 생성
+# primary DB는 반드시 node1에 뜨도록 설정
+# secondary는 랜덤
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongodb-pv-1
+spec:
+  capacity:
+    storage: 4G
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: /home/student/mongodb1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - {key: kubernetes.io/hostname, operator: In, values: [k8s-node1]}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongodb-pv-2
+spec:
+  capacity:
+    storage: 4G
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: /home/student/mongodb2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongodb-pv-3
+spec:
+  capacity:
+    storage: 4G
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: /home/student/mongodb3
