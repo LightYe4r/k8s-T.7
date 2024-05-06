@@ -1,0 +1,43 @@
+#nginx-all.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - image: kimyoungwoo613/nginx:8.0
+          name: nginx
+          ports:
+            - containerPort: 80  # HTTP 트래픽을 위한 포트
+            - containerPort: 443  # HTTPS 트래픽을 위한 포트
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: nginx
+spec:
+  type: NodePort
+  ports:
+    - name: "http"
+      port: 80
+      targetPort: 80
+      nodePort: 30304  # HTTP 트래픽을 위한 외부 접근 포트
+    - name: "https"
+      port: 443
+      targetPort: 443
+      nodePort: 30303  # HTTPS 트래픽을 위한 외부 접근 포트
+  selector:
+    app: nginx
