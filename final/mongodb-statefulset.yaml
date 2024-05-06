@@ -29,6 +29,13 @@ spec:
         volumeMounts:
         - name: mongodb-data
           mountPath: /data/db
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 300m
+            memory: 300Mi
   volumeClaimTemplates:
   - metadata:
       name: mongodb-data

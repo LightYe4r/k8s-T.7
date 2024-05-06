@@ -34,6 +34,13 @@ spec:
         envFrom:
         - configMapRef:
             name: backend-config
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 300m
+            memory: 300Mi
         volumeMounts:
         - mountPath: /usr/src/app
           name: backend-claim0

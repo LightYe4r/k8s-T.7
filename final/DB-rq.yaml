@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: mongodb-quota
+  namespace: mongodb
+spec:
+  hard:
+    pods: "3"
+    requests.cpu: "400m"
+    requests.memory: 600Mi
